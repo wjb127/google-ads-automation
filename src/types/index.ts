@@ -69,7 +69,7 @@ export interface Ad {
 // Google Ads API 응답 타입
 export interface GoogleAdsApiResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   message?: string;
 }
@@ -86,7 +86,7 @@ export interface DashboardStats {
 }
 
 // API 응답 타입
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;

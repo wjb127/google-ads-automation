@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { PlusIcon, PlayIcon, PauseIcon } from 'lucide-react';
+import { PlusIcon, PlayIcon } from 'lucide-react';
 import Link from 'next/link';
 
 interface DashboardStats {

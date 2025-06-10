@@ -15,16 +15,16 @@ export const supabaseConfig: SupabaseConfig = {
 export interface SupabaseRequestOptions {
   table: string;
   method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
-  body?: any;
+  body?: unknown;
   select?: string;
-  filter?: Record<string, any>;
+  filter?: Record<string, unknown>;
   headers?: Record<string, string>;
   useServiceRole?: boolean;
 }
 
-export async function supabaseRequest<T = any>(
+export async function supabaseRequest<T = unknown>(
   options: SupabaseRequestOptions
-): Promise<{ data: T | null; error: any }> {
+): Promise<{ data: T | null; error: unknown }> {
   const { table, method, body, select, filter, useServiceRole = false } = options;
   
   const baseUrl = `${supabaseConfig.url}/rest/v1/${table}`;
@@ -79,7 +79,7 @@ export async function supabaseRequest<T = any>(
 // 편의 함수들
 export const supabaseApi = {
   // SELECT 쿼리
-  select: <T>(table: string, select = '*', filter?: Record<string, any>) =>
+  select: <T>(table: string, select = '*', filter?: Record<string, unknown>) =>
     supabaseRequest<T[]>({ table, method: 'GET', select, filter }),
   
   // INSERT 쿼리
@@ -87,10 +87,10 @@ export const supabaseApi = {
     supabaseRequest<T>({ table, method: 'POST', body: data }),
   
   // UPDATE 쿼리
-  update: <T>(table: string, data: Partial<T>, filter: Record<string, any>) =>
+  update: <T>(table: string, data: Partial<T>, filter: Record<string, unknown>) =>
     supabaseRequest<T>({ table, method: 'PATCH', body: data, filter }),
   
   // DELETE 쿼리
-  delete: (table: string, filter: Record<string, any>) =>
+  delete: (table: string, filter: Record<string, unknown>) =>
     supabaseRequest({ table, method: 'DELETE', filter }),
 }; 

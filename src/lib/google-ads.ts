@@ -1,4 +1,3 @@
-import { GoogleAdsApi, enums } from 'google-ads-api';
 import { GoogleAdsApiResponse } from '@/types';
 
 export interface GoogleAdsConfig {
@@ -14,15 +13,6 @@ export const googleAdsConfig: GoogleAdsConfig = {
   refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN || '',
   developer_token: process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '',
 };
-
-// Google Ads API 클라이언트 생성
-export function createGoogleAdsClient() {
-  return new GoogleAdsApi({
-    client_id: googleAdsConfig.client_id,
-    client_secret: googleAdsConfig.client_secret,
-    developer_token: googleAdsConfig.developer_token,
-  });
-}
 
 // Google Ads API 호출을 위한 헬퍼 함수들
 // 실제 구현에서는 google-ads-api 라이브러리를 사용하되, 
@@ -184,9 +174,10 @@ export async function createFullCampaign(
     }
 
     // 2. 광고 그룹 생성
+    const campaignId = (campaignResult.data as { campaign_id: string }).campaign_id;
     const adGroupResult = await createAdGroup(
       customerId,
-      campaignResult.data.campaign_id,
+      campaignId,
       adGroupData
     );
     if (!adGroupResult.success) {
@@ -194,9 +185,10 @@ export async function createFullCampaign(
     }
 
     // 3. 키워드 추가
+    const adGroupId = (adGroupResult.data as { ad_group_id: string }).ad_group_id;
     const keywordsResult = await addKeywords(
       customerId,
-      adGroupResult.data.ad_group_id,
+      adGroupId,
       keywords
     );
     if (!keywordsResult.success) {
@@ -208,21 +200,21 @@ export async function createFullCampaign(
     for (const adData of ads) {
       const adResult = await createTextAd(
         customerId,
-        adGroupResult.data.ad_group_id,
+        adGroupId,
         adData
       );
       if (!adResult.success) {
         return adResult;
       }
-      adResults.push(adResult.data.ad_id);
+      adResults.push((adResult.data as { ad_id: string }).ad_id);
     }
 
     return {
       success: true,
       data: {
-        campaign_id: campaignResult.data.campaign_id,
-        ad_group_id: adGroupResult.data.ad_group_id,
-        keyword_ids: keywordsResult.data.keyword_ids,
+        campaign_id: campaignId,
+        ad_group_id: adGroupId,
+        keyword_ids: (keywordsResult.data as { keyword_ids: string[] }).keyword_ids,
         ad_ids: adResults,
       },
       message: '전체 캠페인이 성공적으로 생성되었습니다.',

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const platform = searchParams.get('platform');
     const status = searchParams.get('status');
 
-    let filter: Record<string, any> = {};
+    const filter: Record<string, unknown> = {};
     if (platform) filter.platform = platform;
     if (status) filter.status = status;
 

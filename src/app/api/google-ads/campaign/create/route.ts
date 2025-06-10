@@ -40,7 +40,11 @@ export async function POST(request: NextRequest) {
     const campaign = campaignData[0];
 
     // 앱 정보 조회 (최종 URL 등을 위해)
-    const { data: appData, error: appError } = await supabaseApi.select<any>(
+    const { data: appData, error: appError } = await supabaseApi.select<{
+      id: string;
+      app_store_url?: string;
+      google_play_url?: string;
+    }>(
       'apps',
       '*',
       { id: campaign.app_id }
@@ -83,9 +87,17 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
+    // Google Ads 응답 데이터 타입 캐스팅
+    const googleAdsData = googleAdsResult.data as {
+      campaign_id: string;
+      ad_group_id: string;
+      keyword_ids: string[];
+      ad_ids: string[];
+    };
+
     // 로컬 DB의 캠페인 정보 업데이트
     const updateData = {
-      google_ads_campaign_id: googleAdsResult.data.campaign_id,
+      google_ads_campaign_id: googleAdsData.campaign_id,
       status: 'active' as const,
       updated_at: new Date().toISOString(),
     };
@@ -102,7 +114,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json<ApiResponse>({
         success: true,
         data: {
-          google_ads_result: googleAdsResult.data,
+          google_ads_result: googleAdsData,
           warning: 'Google Ads 캠페인은 생성되었지만 로컬 DB 업데이트에 실패했습니다.',
         },
         message: 'Google Ads 캠페인이 생성되었습니다.',
@@ -113,8 +125,8 @@ export async function POST(request: NextRequest) {
       success: true,
       data: {
         campaign_id: campaign.id,
-        google_ads_campaign_id: googleAdsResult.data.campaign_id,
-        google_ads_data: googleAdsResult.data,
+        google_ads_campaign_id: googleAdsData.campaign_id,
+        google_ads_data: googleAdsData,
       },
       message: 'Google Ads 캠페인이 성공적으로 생성되고 활성화되었습니다.',
     });
